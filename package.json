@@ -1,0 +1,29 @@
+{
+  "name": "frontend-start",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "lint:html": "htmllint ./public/**/*.html",
+    "lint:css": "stylelint ./public/**/*.css",
+    "lint:js": "eslint ./public/**/*.js",
+    "start": "browser-sync start --config bs-config.js",
+    "start:tunnel": "browser-sync start --config bs-config.js --tunnel",
+    "test": "npm run lint:html && npm run lint:css && npm run lint:js",
+    "test:lighthouse": "lighthouse --output html --view"
+  },
+  "author": "Boris Cherepackha <boris@cherepaha.pp.ua>",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.26.3",
+    "eslint": "^5.13.0",
+    "eslint-config-recommended": "^4.0.0",
+    "eslint-plugin-eslint-comments": "^3.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-optimize-regex": "^1.1.6",
+    "eslint-plugin-promise": "^4.0.1",
+    "htmllint-cli": "0.0.7",
+    "lighthouse": "^4.1.0",
+    "stylelint": "^9.10.1"
+  }
+}

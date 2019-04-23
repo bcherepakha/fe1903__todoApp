@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="index.js"></script>
+  <title>Todo App</title>
+</head>
+<body>
+
+  <div class="todo">
+    <ul class="todo__list">
+      <li class="todo__list-item">
+        <label>
+          <input class="todo__list-item-status" type="checkbox">
+          <span class="todo__list-item-text">Task 1</span>
+        </label>
+        <button class="todo__list-item-remove">Del</button>
+      </li>
+      <li class="todo__list-item">
+        <label>
+          <input class="todo__list-item-status" type="checkbox">
+          <span class="todo__list-item-text">Task 2</span>
+        </label>
+        <button class="todo__list-item-remove">Del</button>
+      </li>
+    </ul>
+    <form class="todo__add-form">
+      <label>
+        Add task:
+        <input type="text" name="task">
+      </label>
+
+      <button type="submit">Add task</button>
+    </form>
+  </div>
+
+</body>
+</html>
