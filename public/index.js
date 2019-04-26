@@ -10,7 +10,6 @@ class TodoList {
     const {container} = this,
       tasksCollection = container.querySelectorAll('.todo__list-item');
 
-    console.log(tasksCollection);
     tasksCollection.forEach(function(taskContainer) {
       const taskStatusEl = taskContainer.querySelector('.todo__list-item-status'),
         taskTextEl = taskContainer.querySelector('.todo__list-item-text'),

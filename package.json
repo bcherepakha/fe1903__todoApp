@@ -10,7 +10,8 @@
     "start": "browser-sync start --config bs-config.js",
     "start:tunnel": "browser-sync start --config bs-config.js --tunnel",
     "test": "npm run lint:html && npm run lint:css && npm run lint:js",
-    "test:lighthouse": "lighthouse --output html --view"
+    "test:lighthouse": "lighthouse --output html --view",
+    "deploy": "gh-pages -d public"
   },
   "author": "Boris Cherepackha <boris@cherepaha.pp.ua>",
   "license": "ISC",
@@ -22,6 +23,7 @@
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-optimize-regex": "^1.1.6",
     "eslint-plugin-promise": "^4.0.1",
+    "gh-pages": "^2.0.1",
     "htmllint-cli": "0.0.7",
     "lighthouse": "^4.1.0",
     "stylelint": "^9.10.1"
