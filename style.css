@@ -1,0 +1,42 @@
+.todo__list
+{
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+.todo__list-item
+{
+  display: flex;
+  align-items: center;
+}
+
+.todo__list-item:not(:first-child)
+{
+  margin-top: 6px;
+}
+
+.todo__list-item-task
+{
+  flex: 0 1 auto;
+
+  display: flex;
+}
+
+.todo__list-item-status
+{
+  flex: 0 0 auto;
+}
+
+.todo__list-item-text
+{
+  flex: 1 1 auto;
+  display: block;
+  margin-left: 12px;
+}
+
+.todo__list-item-remove
+{
+  flex: 0 0 auto;
+  margin-left: 12px;
+}
