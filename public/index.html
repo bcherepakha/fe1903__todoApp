@@ -13,24 +13,24 @@
   <div class="todo">
     <ul class="todo__list">
       <li class="todo__list-item">
-        <label>
+        <label class="todo__list-item-task">
           <input class="todo__list-item-status" type="checkbox">
           <span class="todo__list-item-text">Task 1</span>
         </label>
         <button class="todo__list-item-remove">Del</button>
       </li>
       <li class="todo__list-item">
-        <label>
+        <label class="todo__list-item-task">
           <input class="todo__list-item-status" type="checkbox">
           <span class="todo__list-item-text">Task 2</span>
         </label>
-        <button class="todo__list-item-remove">Del</button>
+        <button class="todo__list-item-remove"><span>Del</span></button>
       </li>
     </ul>
     <form class="todo__add-form">
       <label>
         Add task:
-        <input type="text" name="task">
+        <input type="text" name="task" value="">
       </label>
 
       <button type="submit">Add task</button>
