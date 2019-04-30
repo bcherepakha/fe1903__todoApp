@@ -27,7 +27,23 @@
         <button class="todo__list-item-remove"><span>Del</span></button>
       </li>
     </ul>
-    <form class="todo__add-form">
+    <form class="todo__add-form" method="POST">
+      <label>
+        Add task:
+        <input type="text" name="task" value="">
+      </label>
+
+      <button type="submit">Add task</button>
+    </form>
+  </div>
+
+  <div class="async-todo">
+    <h2>Async todo</h2>
+
+    <ul class="todo__list">
+    </ul>
+
+    <form class="todo__add-form" method="POST">
       <label>
         Add task:
         <input type="text" name="task" value="">

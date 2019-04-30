@@ -2,14 +2,80 @@ class TodoList {
   constructor(options) {
     const {
       selector,
-      storageKey
+      storageKey,
+      getTasksURL,
+      putTask,
+      deleteTask,
+      createTask
     } = options;
 
+    this.getTasksURL = getTasksURL;
+    this.putTask = putTask;
+    this.deleteTask = deleteTask;
+    this.createTask = createTask;
     this.storageKey = storageKey;
     this.container = document.querySelector(selector);
     this.tasks = [];
     this.init();
-    this.connectToStorage();
+
+    if (storageKey) {
+      this.connectToStorage();
+    }
+
+    if (getTasksURL) {
+      this.getTasksFromURL();
+    }
+  }
+
+  async getTasksFromURL() {
+    const { getTasksURL } = this;
+
+    this.setLoading(true);
+
+    return fetch(getTasksURL)
+      .then(response => response.json())
+      .then(data => {
+        this.setLoading(false);
+
+        return data.map(task => {
+          const {title, ...rest} = task; // title = task.title
+
+          return {
+            ...rest,
+            text: title
+          };
+        });
+      })
+      .then(data => {
+        const tasksColl = data.map(this.createTaskContainer.bind(this));
+
+        this.tasks = this.tasks.concat(data);
+        this.saveToStorage();
+        this.container.append.apply(this.container, tasksColl);
+      })
+      .catch(error => {
+        this.setLoading(false);
+        console.log(`Error fetching data from ${getTasksURL}: `, error);
+      });
+  }
+
+  setLoading(loading) {
+    this.loading = loading;
+
+    if (loading) {
+      const loadingEl = document.createElement('li');
+
+      loadingEl.classList.add('loading');
+      loadingEl.innerText = 'loading...';
+
+      this.container.append(loadingEl);
+    } else {
+      const loadingEl = this.container.querySelector('li.loading');
+
+      if (loadingEl) {
+        loadingEl.remove();
+      }
+    }
   }
 
   init() {
@@ -76,32 +142,83 @@ class TodoList {
         tasks
       } = this;
 
-    window.localStorage[storageKey] = JSON.stringify(tasks);
+    if (storageKey) {
+      window.localStorage[storageKey] = JSON.stringify(tasks);
+    }
   }
 
-  completeTask(id, e) {
-    // const task = this.tasks.find(function(t) {
-    //   return t.id === id
-    // });
+  async completeTask(id, e) {
     const task = this.tasks.find(t => t.id === id),
       taskStatusEl = e.target,
-      completed = taskStatusEl.checked;
+      completed = taskStatusEl.checked,
+      { putTask } = this;
 
-    if (task) {
-      task.completed = completed;
+    if (!task) {
+      console.log(`Can't complete uncknown task`, id);
+      return ;
     }
 
-    this.saveToStorage();
+    const updatetedTask = {
+        ...task,
+        completed
+      };
+
+    let updateTaskPromise;
+
+    if (putTask) {
+      updateTaskPromise = putTask(updatetedTask);
+    } else {
+      updateTaskPromise = Promise.resolve(updatetedTask);
+    }
+
+    return updateTaskPromise
+        .then(newTask => {
+          const taskIndex = this.tasks.findIndex(t => t.id === newTask.id);
+
+          this.tasks[taskIndex] = newTask;
+          taskStatusEl.checked = newTask.completed;
+          this.saveToStorage();
+        })
+        .catch(error => console.log(error));
   }
 
-  removeTask(id, e) {
+  // completeTask(id, e) {
+  //   const task = this.tasks.find(t => t.id === id),
+  //     taskStatusEl = e.target,
+  //     completed = taskStatusEl.checked;
+
+  //   if (task) {
+  //     task.completed = completed;
+  //   }
+
+  //   this.saveToStorage();
+  // }
+
+  async removeTask(id, e) {
     const removeBtnEl = e.currentTarget,
-      taskContainer = removeBtnEl.closest('.todo__list-item');
+      taskContainer = removeBtnEl.closest('.todo__list-item'),
+      { deleteTask } = this,
+      deleteTaskHandler = deleteTask
+        ? deleteTask(id)
+        : Promise.resolve();
 
-    this.tasks = this.tasks.filter(task => task.id !== id);
-    this.saveToStorage();
-    taskContainer.remove();
+    deleteTaskHandler
+      .then(() => {
+        this.tasks = this.tasks.filter(task => task.id !== id);
+        this.saveToStorage();
+        taskContainer.remove();
+      })
+      .catch(error => console.error(error));
   }
+
+  // removeTask(id, e) {
+  //   const removeBtnEl = e.currentTarget,
+  //     taskContainer = removeBtnEl.closest('.todo__list-item');
+
+  //   this.tasks = this.tasks.filter(task => task.id !== id);
+  //   this.saveToStorage();
+  //   taskContainer.remove();
+  // }
 
   createTaskContainer(task) {
     const container = document.createElement('li'),
@@ -133,18 +250,39 @@ class TodoList {
     return container;
   }
 
-  addTask(taskText) {
-    const task = {
-        text: taskText,
-        completed: false,
-        id: Date.now()
-      },
-      taskEl = this.createTaskContainer(task);
+  async addTask(taskText) {
+    const { createTask } = this,
+      createTaskPromise = createTask
+        ? createTask(taskText)
+        : Promise.resolve({
+            text: taskText,
+            completed: false,
+            id: Date.now()
+          });
 
-    this.tasks.push(task);
-    this.saveToStorage();
-    this.container.append(taskEl);
+    createTaskPromise
+          .then(task => {
+            const taskEl = this.createTaskContainer(task);
+
+            this.tasks.push(task);
+            this.saveToStorage();
+            this.container.append(taskEl);
+          })
+          .catch(error => console.error(error));
   }
+
+  // addTask(taskText) {
+  //   const task = {
+  //       text: taskText,
+  //       completed: false,
+  //       id: Date.now()
+  //     },
+  //     taskEl = this.createTaskContainer(task);
+
+  //   this.tasks.push(task);
+  //   this.saveToStorage();
+  //   this.container.append(taskEl);
+  // }
 }
 
 class AddTodoForm {
@@ -189,9 +327,63 @@ const todoList = new TodoList({
     submitHandler: function(taskText) {
       todoList.addTask(taskText);
     }
+  }),
+  asyncTodo = new TodoList({
+    selector: '.async-todo > .todo__list',
+    getTasksURL: 'https://jsonplaceholder.typicode.com/todos?userId=1',
+    putTask: async function( task ) {
+      return fetch(`https://jsonplaceholder.typicode.com/todos/${task.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(task),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8'
+        }
+      }).then(response => response.json());
+    },
+    deleteTask: async function(id) {
+      return fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+        method: 'DELETE'
+      });
+    },
+    createTask: async function(taskText) {
+      return fetch('https://jsonplaceholder.typicode.com/todos', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: taskText,
+          userId: 1
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8'
+        }
+      })
+        .then(response => response.json())
+        .then(task => ({
+          ...task,
+          text: task.title
+        }));
+    }
   });
 
+// eslint-disable-next-line no-unused-expressions
+new AddTodoForm({
+  selector: '.async-todo > .todo__add-form',
+  submitHandler: function(taskText) {
+    asyncTodo.addTask(taskText);
+  }
+}),
+
 console.log({
-  todoList,
-  addTodoForm
+  addTodoForm,
+  asyncTodo
 });
+
+// fetch('https://jsonplaceholder.typicode.com/users')
+//   .then(function (response) {
+//     return response.json();
+//   })
+//   .then(function (data) {
+//     console.log(data);
+//   })
+//   .catch(function (error) {
+//     console.log(error);
+//   });
