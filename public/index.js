@@ -259,6 +259,7 @@ class TodoList {
             completed: false,
             id: Date.now()
           });
+      // const self = this;
 
     createTaskPromise
           .then(task => {
@@ -268,6 +269,13 @@ class TodoList {
             this.saveToStorage();
             this.container.append(taskEl);
           })
+          // .then(function(task) {
+          //   const taskEl = self.createTaskContainer(task);
+
+          //   self.tasks.push(task);
+          //   self.saveToStorage();
+          //   self.container.append(taskEl);
+          // })
           .catch(error => console.error(error));
   }
 
